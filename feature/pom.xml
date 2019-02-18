@@ -1,0 +1,16 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>test.maven.scm.tycho</groupId>
+		<artifactId>test.maven.scm.tycho-build</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../build</relativePath>
+	</parent>
+	<artifactId>test.maven.scm.tycho-feature</artifactId>
+	<packaging>eclipse-feature</packaging>
+	<name>ExampleApp Feature</name>
+
+	<build>
+		<finalName>${project.artifactId}_${project.version}_v${maven.build.timestamp}</finalName>
+	</build>
+</project>

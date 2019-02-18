@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Example
+Bundle-SymbolicName: test.maven.scm.tycho;singleton:=true
+Bundle-Version: 0.0.1.qualifier
+Bundle-Vendor: Example
+Require-Bundle:  
+ org.eclipse.rap.ui;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.rap.ui.views;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.rap.ui.forms;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.rap.jface.databinding;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.rap.fileupload;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.rap.filedialog;bundle-version="[3.7.0,4.0.0)",
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.core.databinding.property,
+ org.eclipse.equinox.security,
+ javax.servlet;bundle-version="3.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Bundle-Activator: test.maven.scm.tycho.SSPBundleActivator
+Export-Package: test.maven.scm.tycho

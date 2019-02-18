@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>test.maven.scm.tycho</groupId>
+		<artifactId>test.maven.scm.tycho-build</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../build</relativePath>
+	</parent>
+	<artifactId>test.maven.scm.tycho</artifactId>
+	<packaging>eclipse-plugin</packaging>
+	<name>Example Application</name>
+
+	<build>
+		<defaultGoal>package</defaultGoal>
+		<finalName>${project.artifactId}_${project.version}_v${maven.build.timestamp}</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/platform</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<prependGroupId>true</prependGroupId>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
+
+	<profiles>
+		<profile>
+			<!-- This profile has to be activated the jenkins job configuration using 
+				-PciBuild. It should not be activated for the release because it could cause 
+				that either the maven-source-plugin or the maven-javadoc-plugin are executed 
+				twice and would cause that the generated jars are uploaded twice to nexus 
+				which would cause the release to fail. -->
+			<id>ciBuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>${maven-source-plugin.version}</version>
+						<executions>
+							<execution>
+								<!-- Matches the id defined in the maven superPom -->
+								<id>attach-sources</id>
+								<goals>
+									<!-- Matches the goal defined in the maven superPom from maven 3.5.4 -->
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

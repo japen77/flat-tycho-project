@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.4"?>
+<plugin>
+   <extension
+         id="test.maven.scm.tycho"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            thread="main"
+            cardinality="singleton-global"
+            visible="true">
+         <run
+               class="test.maven.scm.tycho.ExampleApp">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="ssp.entrypoints"
+         point="org.eclipse.rap.ui.entrypoint">
+      <entrypoint
+            path="/example"
+            applicationId="test.maven.scm.tycho"
+            id="example.entrypoint"
+            >
+      </entrypoint>
+   </extension> 
+ 
+      
+</plugin>

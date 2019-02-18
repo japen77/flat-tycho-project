@@ -1,0 +1,202 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>test.maven.scm.tycho</groupId>
+	<artifactId>test.maven.scm.tycho-build</artifactId>
+	<packaging>pom</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Example Build</name>
+
+	<scm>
+		<!--Workaround: Specifying separately the addresses for push and fetch 
+			will avoid occurrence of bug https://issues.apache.org/jira/browse/MRELEASE-927 -->
+		<developerConnection>
+			scm:git:[push=]https://github.com/japen77/flat-tycho-project.git[fetch=]https://github.com/japen77/flat-tycho-project.git
+		</developerConnection>
+	</scm>
+
+	<modules>
+		<module>../app</module>
+		<module>../feature</module>
+	</modules>
+
+	<properties>
+		<!-- Common properties to all projects -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+
+		<!-- Common dependencies of pom first dependencies go here. -->
+		<logback.version>1.2.3</logback.version>
+
+		<!-- maven plug-in versions properties -->
+		<!-- version 0.26.0 fails to build -->
+		<tycho.version>1.3.0</tycho.version>
+		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+		<maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+		<maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+		<maven-javadoc-plugin.version>3.0.0</maven-javadoc-plugin.version>
+
+		<maven-scm-plugin.version>1.11.1</maven-scm-plugin.version>
+		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>		
+	</properties>
+
+	<build>
+		<plugins>
+			<!-- tycho plugins common to all modules. -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho.version}</version>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<pomDependencies>consider</pomDependencies>
+					<filters>
+						<filter>
+							<type>p2-installable-unit</type>
+							<id>org.eclipse.equinox.servletbridge.extensionbundle</id>
+							<removeAll />
+						</filter>
+					</filters>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<!-- If build on windows the Mac product will not work due to bug: 
+							https://bugs.eclipse.org/bugs/show_bug.cgi?id=355370 -->
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<format>'v'yyyyMMddHHmm</format>
+					<strictVersions>false</strictVersions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${maven-release-plugin.version}</version>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<preparationGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho.version}:update-eclipse-metadata
+						org.apache.maven.plugins:maven-scm-plugin:${maven-scm-plugin.version}:add
+						org.apache.maven.plugins:maven-scm-plugin:${maven-scm-plugin.version}:checkin</preparationGoals>
+					<completionGoals>org.eclipse.tycho:tycho-versions-plugin:${tycho.version}:update-eclipse-metadata
+						org.apache.maven.plugins:maven-scm-plugin:${maven-scm-plugin.version}:add
+						org.apache.maven.plugins:maven-scm-plugin:${maven-scm-plugin.version}:checkin</completionGoals>
+				</configuration>
+			</plugin>
+			<!-- This plugin does not work with a flat structure: https://jira.apache.org/jira/browse/SCM-920 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>${maven-scm-plugin.version}</version>
+				<configuration>
+					<username>jenkins.svn</username>
+					<password>Nv5j3nK1</password>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-cli</id>
+						<goals>
+							<goal>add</goal>
+							<goal>checkin</goal>
+						</goals>
+						<configuration>
+							<basedir>${basedir}/..</basedir>
+							<includes>**/META-INF/MANIFEST.MF, **/feature.xml,
+								**/*.product,**/category.xml</includes>
+							<excludes>**/target/**</excludes>
+							<message>Changing the Eclipse files versions</message>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven-javadoc-plugin.version}</version>
+					<configuration> <!-- JavaDoc does not work with jenkins for releases -->
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven-source-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${maven-dependency-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>${maven-install-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>${maven-clean-plugin.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<repositories>
+		<!-- In order to solve RAP dependencies an eclipse p2 repo needs to be 
+			added. -->
+		<repository>
+			<!-- better to use specific version repos instead of the generic one. -->
+			<id>rap-3.7</id>
+			<url>http://download.eclipse.org/rt/rap/3.7/R-20181212-1410/</url>
+			<!-- url>http://download.eclipse.org/rt/rap/3.0/SR2-20160201-1220</url -->
+			<layout>p2</layout>
+		</repository>
+
+		<!-- In order to solve RAP dependencies an eclipse p2 repo needs to be 
+			added. -->
+		<repository>
+			<!-- better to use specific version repos instead of the generic one. -->
+			<id>eclipse-2018-12</id>
+			<url>http://download.eclipse.org/eclipse/updates/4.10/R-4.10-201812060815/</url>
+			<!-- url>http://download.eclipse.org/eclipse/updates/4.7/R-4.7.1-201709061700/</url -->
+			<layout>p2</layout>
+		</repository>
+
+	</repositories>
+
+</project>
